@@ -127,6 +127,7 @@ input[type=range]{width:100%;accent-color:var(--acc);height:28px}
       <div class="card"><h4>가까운 변 ÷ 먼 변의 넓이 배율</h4><div class="big" id="Lr"></div><div class="fig"><svg id="Lchart" role="img" aria-label="기울기에 따른 넓이 배율의 비 그래프"></svg></div></div>
     </div>
     <div class="cards">
+      <div class="card" style="grid-column:1/-1"><h4>네 모서리만으로 연립방정식을 풀어 구한 펴기 행렬 (h₃₃ = 1)</h4><div class="mat" id="LS"></div><div class="note" id="LSn"></div></div>
       <div class="card" style="grid-column:1/-1"><h4>작은 정사각형으로 넓이 배율 검산 (가까운 모서리 v = −1)</h4><table class="rows" id="Lsq"></table><div class="note">정사각형을 작게 줄일수록 신발끈 공식으로 구한 배율이 식 |det H| / W³의 값에 가까워집니다.</div></div>
     </div>
   </section>
@@ -375,6 +376,12 @@ function drawLab() {
   const ratio = ((d + s) / (d - s)) ** 3; $('Lr').textContent = '×' + (ratio < 100 ? ratio.toFixed(2) : ratio.toFixed(0));
   const rows = [0.1, 0.01, 0.001].map(e => { const q = [[0, -1], [e, -1], [e, -1 + e], [0, -1 + e]].map(p => photo(...p)); return [e, shoelace(q) / e ** 2]; });
   $('Lsq').innerHTML = rows.map(([e, a]) => `<tr><td>한 변 ${e}인 정사각형 → 신발끈 공식으로 구한 배율</td><td>×${a.toFixed(4)}</td></tr>`).join('') + `<tr><td><b>식 |det H| / W³ (W = ${(d - s).toFixed(3)})</b></td><td><b>×${J(-1).toFixed(4)}</b></td></tr>`;
+  const S = solveH(cs.map(([u, v]) => photo(u, v).slice(0, 2)), cs.map(([u, v]) => [u, v]));   // 사진 속 네 점 → 정사각형
+  if (S) {
+    const k = Hi[2][2], diff = Math.max(...S.flat().map((v, i) => Math.abs(v - Hi.flat()[i] / k)));
+    $('LS').innerHTML = S.flat().map(v => `<span>${f4(v)}</span>`).join('');
+    $('LSn').innerHTML = `H⁻¹의 모든 성분을 (3, 3) 성분 ${f4(k)}로 나눈 행렬과의 가장 큰 차이: ${diff < 1e-9 ? '0 (같음)' : f4(diff)} — 각도와 거리를 몰라도 네 모서리만으로 H⁻¹의 상수배를 찾아냅니다.`;
+  }
   chart(thd, d);
 }
 function chart(cur, d) {
